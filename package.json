@@ -1,0 +1,23 @@
+{
+  "name": "serverless-export-env",
+  "version": "1.0.0",
+  "description": "Serverless plugin to export environment variables into a .env file",
+  "main": "src/index.js",
+  "author": "Andre Rabold",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/arabold/serverless-export-env.git"
+  },
+  "bugs": {
+    "url": "https://github.com/arabold/serverless-export-env/issues"
+  },
+  "homepage": "https://github.com/arabold/serverless-export-env",
+  "dependencies": {
+    "bluebird": "^3.5.0",
+    "lodash": "^4.17.4"
+  },
+  "devDependencies": {
+    "eslint": "^3.19.0"
+  }
+}
