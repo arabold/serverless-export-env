@@ -26,6 +26,48 @@ This plugin is based on the [serverless-dotenv Plugin by Jimdo](https://github.c
 but largely rewritten to fit our needs.
 
 
+## Why another plugin?
+
+There're plenty of enviroment and dotenv plugins available for Serverless. However,
+some are already obsolete, others are very limited in use case. We needed a possibility
+to access Serverless environment variables from command line during integration
+testing of our code. As some of these environment variables are referencing
+CloudFormation resources, none of the existing plugins was able to solve this.
+
+
+## Referencing CloudFormation resources
+
+Serverless offers a very powerful feature: You are able to reference AWS
+resources anywhere from within your `.yaml` and it will automatically resolve
+them to their respective values during deployment. A common example is to
+bind a DynamoDB table name to an environment variable, so you can access it
+in your Lambda function implementation later:
+
+```yaml
+provider:
+  environment:
+    TABLE_NAME:
+      Ref: MyDynamoDbTable
+# ...
+resources:
+  Resources:
+    MyDynamoDbTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain
+      Properties:
+        # ...
+```
+
+Later in your code you can simply access `process.env.TABLE_NAME` to get the
+proper DynamoDB table name without having to hardcode anything.
+
+The _Serverless Export Env Plugin_ allows you to make use of these references
+(and all other environment variables of course) from the command line by
+exporting them into a `.env` file in your project folder. Then use a library
+such as [dotenv](https://www.npmjs.com/package/dotenv) to read them during
+runtime.
+
+
 ## Usage
 
 Add the npm package to your project:
