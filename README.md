@@ -28,7 +28,7 @@ but largely rewritten to fit our needs.
 
 ## Why another plugin?
 
-There're plenty of enviroment and dotenv plugins available for Serverless. However,
+There're plenty of environment and dotenv plugins available for Serverless. However,
 some are already obsolete, others are very limited in use case. We needed a possibility
 to access Serverless environment variables from command line during integration
 testing of our code. As some of these environment variables are referencing
@@ -61,6 +61,19 @@ resources:
 Later in your code you can simply access `process.env.TABLE_NAME` to get the
 proper DynamoDB table name without having to hardcode anything.
 
+```js
+require("dotenv").config({ path: "../.env" /* path to your project root folder */ });
+
+const AWS = require('aws-sdk');
+const docClient = new AWS.DynamoDB.DocumentClient({ /* ... */ });
+docClient.get({
+	TableName: process.env.TABLE_NAME,
+	Key: { foo: "bar" }
+}, result => {
+	console.log(result);
+});
+```
+
 The _Serverless Export Env Plugin_ allows you to make use of these references
 (and all other environment variables of course) from the command line by
 exporting them into a `.env` file in your project folder. Then use a library
@@ -74,7 +87,7 @@ Add the npm package to your project:
 
 ```bash
 # Via yarn
-$ yarn add arabold/serverless-export-env
+$ yarn add arabold/serverless-export-env --dev
 
 # Via npm
 $ npm install arabold/serverless-export-env --save-dev
@@ -110,6 +123,10 @@ your project root folder.
 
 
 ## Releases
+
+### 1.0.1
+* Corrected plugin naming
+* Improved documentation
 
 ### 1.0.0
 

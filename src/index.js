@@ -14,7 +14,7 @@ const transformEnvVarsToString = require("./lib/transformEnvVarsToString");
  * Serverless Plugin to extract Serverless' Lambda environment variables into
  * a local .env file for integration testing.
  */
-class ServerlessDotenvPlugin {
+class ExportEnv {
 	constructor(serverless, options) {
 		this.serverless = serverless;
 		this.options = options;
@@ -44,9 +44,10 @@ class ServerlessDotenvPlugin {
 	}
 
 	initOfflineHook() {
-		this.isOfflineHooked = true;
-
-		this.serverless.pluginManager.run([ "export-env" ]);
+		if (!this.isOfflineHooked) {
+			this.isOfflineHooked = true;
+			this.serverless.pluginManager.run([ "export-env" ]);
+		}
 	}
 
 	collectEnvVars() {
@@ -92,4 +93,4 @@ class ServerlessDotenvPlugin {
 
 }
 
-module.exports = ServerlessDotenvPlugin;
+module.exports = ExportEnv;
