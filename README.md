@@ -109,6 +109,7 @@ Alternative you can just start `serverless offline` to generate it.
 
 * `export-env:collect` - Collect environment variables from Serverless
 * `export-env:resolve` - Resolve CloudFormation references and import variables
+* `export-env:apply` - Set environment variables when testing Lambda functions locally 
 * `export-env:write` - Write environment variables to file
 
 
@@ -123,6 +124,9 @@ your project root folder.
 
 
 ## Releases
+
+### 1.0.2
+* The plugin now properly resolves and sets the environment variables if a Lambda function is invoked locally (`serverless invoke local -f FUNCTION`). This allows seamless as if the function would be deployed on AWS. 
 
 ### 1.0.1
 * Corrected plugin naming
