@@ -6,6 +6,7 @@ const _ = require("lodash")
 	, path = require("path");
 
 const collectFunctionEnvVariables = require("./lib/collectFunctionEnvVariables");
+const setEnvVariables = require("./lib/setEnvVariables");
 const collectOfflineEnvVariables = require("./lib/collectOfflineEnvVariables");
 const resolveCloudFormationEnvVariables = require("./lib/resolveCloudFormationEnvVariables");
 const transformEnvVarsToString = require("./lib/transformEnvVarsToString");
@@ -25,6 +26,7 @@ class ExportEnv {
 				lifecycleEvents: [
 					"collect",
 					"resolve",
+					"apply",
 					"write"
 				]
 			}
@@ -34,8 +36,10 @@ class ExportEnv {
 		this.hooks = {
 			"before:offline:start:init": this.initOfflineHook.bind(this),
 			"before:offline:start": this.initOfflineHook.bind(this),
+			"before:invoke:local:invoke": this.initOfflineHook.bind(this),
 			"export-env:collect": this.collectEnvVars.bind(this),
 			"export-env:resolve": this.resolveEnvVars.bind(this),
+			"export-env:apply": this.applyEnvVars.bind(this),
 			"export-env:write": this.writeEnvVars.bind(this)
 		};
 
@@ -46,8 +50,9 @@ class ExportEnv {
 	initOfflineHook() {
 		if (!this.isOfflineHooked) {
 			this.isOfflineHooked = true;
-			this.serverless.pluginManager.run([ "export-env" ]);
+			return this.serverless.pluginManager.run([ "export-env" ]);
 		}
+		return BbPromise.resolve();
 	}
 
 	collectEnvVars() {
@@ -79,6 +84,15 @@ class ExportEnv {
 		return resolveCloudFormationEnvVariables(this.serverless, this.environmentVariables)
 		.then(resolved => this.environmentVariables = resolved)
 		.return();
+	}
+
+	applyEnvVars() {
+		return BbPromise.try(() => {
+			// If this is a local lambda invoke, replace the service environment with the resolved one
+			if (this.isOfflineHooked) {
+				setEnvVariables(this.serverless, this.environmentVariables);
+			}
+		});
 	}
 
 	writeEnvVars() {
