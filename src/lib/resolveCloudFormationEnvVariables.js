@@ -39,8 +39,10 @@ function resolveCloudFormationenvVars(serverless, envVars) {
 				}
 				else if (value["Fn::Join"]) {
 					resolved = '';
-					value["Fn::Join"].forEach((v) => {
-						resolved += mapValue(v);
+					// Join has two Arguments. first the delimiter and second the values
+					let parts = value["Fn::Join"][1];
+					parts.forEach((v, i) => {
+						resolved += mapValue(v) + (i < parts.length - 1 ? value["Fn::Join"][0] : '');
 					})
 					process.env.SLS_DEBUG && serverless.cli.log(`Resolved environment variable ${key}: ${JSON.stringify(resolved)}`);
 				}
