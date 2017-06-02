@@ -21,13 +21,10 @@ function resolveCloudFormationenvVars(serverless, envVars) {
 		const resources = resultStackResources.StackResources;
 		const exports = resultExports.Exports;
 
-		return _.mapValues(envVars, (value, key) => {
-			return mapValue(value, key);
-		});
+		return _.mapValues(envVars, (value, key) => mapValue(value, key));
 
 		function mapValue(value, key) {
 			let resolved = value;
-
 			if (_.isObject(value)) {
 				if (value.Ref) {
 					const resource = _.find(resources, [ "LogicalResourceId", value.Ref ]);
@@ -51,9 +48,9 @@ function resolveCloudFormationenvVars(serverless, envVars) {
 					serverless.cli.log(`WARNING: Failed to resolve environment variable ${key}: ${JSON.stringify(resolved)}`);
 				}
 			}
+
 			return resolved;
 		}
-
 	});
 }
 
