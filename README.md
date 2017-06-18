@@ -74,7 +74,12 @@ docClient.get({
 });
 ```
 
-The _Serverless Export Env Plugin_ allows you to make use of these references
+The _Serverless Export Env Plugin_ supports references to resources created
+within the `serverless.yml`, to resources imported from another stack via
+`Fn::ImportValue`, pseudo parameters such as `AWS::Region` and `AWS::AccountId`
+as well as the commonly used `Fn::Join` intrinsic function.
+
+The plugin allows you to make use of these references
 (and all other environment variables of course) from the command line by
 exporting them into a `.env` file in your project folder. Then use a library
 such as [dotenv](https://www.npmjs.com/package/dotenv) to read them during
@@ -102,14 +107,15 @@ plugins:
 
 That's it! You can now call `serverless export-env` in your terminal to
 generate the `.env` file based on your Serverless configuration.
-Alternative you can just start `serverless offline` to generate it.
+Alternative you can just start `serverless invoke local -f FUNCTION` or
+`serverless offline` to generate it.
 
 
 ## Provided lifecycle events
 
 * `export-env:collect` - Collect environment variables from Serverless
 * `export-env:resolve` - Resolve CloudFormation references and import variables
-* `export-env:apply` - Set environment variables when testing Lambda functions locally 
+* `export-env:apply` - Set environment variables when testing Lambda functions locally
 * `export-env:write` - Write environment variables to file
 
 
@@ -125,14 +131,24 @@ your project root folder.
 
 ## Releases
 
+### 1.1.0
+* Support `Fn::Join` operation (contribution by @jonasho)
+* Support pseudo parameters `AWS::Region`, `AWS::AccountId`, `AWS::StackId`
+  and `AWS::StackName`
+
 ### 1.0.2
-* The plugin now properly resolves and sets the environment variables if a Lambda function is invoked locally (`serverless invoke local -f FUNCTION`). This allows seamless as if the function would be deployed on AWS. 
+* The plugin now properly resolves and sets the environment variables if a
+  Lambda function is invoked locally (`serverless invoke local -f FUNCTION`).
+  This allows seamless as if the function would be deployed on AWS.
 
 ### 1.0.1
 * Corrected plugin naming
 * Improved documentation
 
 ### 1.0.0
-
 * This is the initial release with all basic functionality
-* TODO: Write some tests!
+
+### To-Dos
+- [ ] Add support for more intrinsic functions such as `Fn::GetAtt`, `Fn::Sub`,
+      etc. (see http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference.html)
+- [ ] Write some tests!
