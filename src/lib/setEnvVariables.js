@@ -18,6 +18,7 @@ function setEnvVariables(serverless, environment) {
 		if (funcEnv) {
 			_.assign(funcEnv, _.reduce(funcEnv, (acc, value, key) => {
 				acc[key] = environment[key];
+				return acc;
 			}, {}));
 		}
 	});
