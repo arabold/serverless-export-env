@@ -131,6 +131,9 @@ your project root folder.
 
 ## Releases
 
+### 1.1.1
+* Fix issue with multiple environment variables for function (thanks to @Nevon)
+
 ### 1.1.0
 * Support `Fn::Join` operation (contribution by @jonasho)
 * Support pseudo parameters `AWS::Region`, `AWS::AccountId`, `AWS::StackId`
