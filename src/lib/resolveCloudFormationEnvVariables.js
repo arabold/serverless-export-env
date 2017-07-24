@@ -3,6 +3,33 @@
 const BbPromise = require("bluebird")
 	, _ = require("lodash");
 
+
+function listExports(AWS, exports, nextToken) {
+	exports = exports || [];
+	return AWS.request("CloudFormation", "listExports", { NextToken: nextToken })
+	.tap(response => {
+		exports.push.apply(exports, response.Exports);
+		if (response.NextToken) {
+			// Query next page
+			return listExports(AWS, exports, response.NextToken);
+		}
+	})
+	.return(exports);
+}
+
+function listStackResources(AWS, resources, nextToken) {
+	resources = resources || [];
+	return AWS.request("CloudFormation", "listStackResources", { StackName: AWS.naming.getStackName(), NextToken: nextToken })
+	.then(response => {
+		resources.push.apply(resources, response.StackResourceSummaries);
+		if (response.NextToken) {
+			// Query next page
+			return listStackResources(AWS, resources, response.NextToken);
+		}
+	})
+	.return(resources);
+}
+
 /**
  * Resolves CloudFormation references and import variables
  *
@@ -14,12 +41,10 @@ function resolveCloudFormationenvVars(serverless, envVars) {
 
 	const AWS = serverless.providers.aws;
 	return BbPromise.join(
-		AWS.request("CloudFormation", "describeStackResources", { StackName: AWS.naming.getStackName() }),
-		AWS.request("CloudFormation", "listExports")
+		listStackResources(AWS),
+		listExports(AWS)
 	)
-	.spread((resultStackResources, resultExports) => {
-		const resources = resultStackResources.StackResources;
-		const exports = resultExports.Exports;
+	.spread((resources, exports) => {
 
 		function mapValue(value, key) {
 			let resolved = value;

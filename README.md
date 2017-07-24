@@ -131,13 +131,19 @@ your project root folder.
 
 ## Releases
 
+### 1.1.2
+* Fixed an issue with CloudFormation resources not being resolved properly if
+  the stack has more than 100 resources or exports.
+
 ### 1.1.1
-* Fix issue with multiple environment variables for function (thanks to @Nevon)
+* Fix issue with multiple environment variables for function (thanks to
+  [@Nevon](github.com/Nevon)).
 
 ### 1.1.0
-* Support `Fn::Join` operation (contribution by @jonasho)
+* Support `Fn::Join` operation (contribution by
+  [@jonasho](https://github.com/jonasho))
 * Support pseudo parameters `AWS::Region`, `AWS::AccountId`, `AWS::StackId`
-  and `AWS::StackName`
+  and `AWS::StackName`.
 
 ### 1.0.2
 * The plugin now properly resolves and sets the environment variables if a
