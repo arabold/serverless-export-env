@@ -137,7 +137,7 @@ your project root folder.
 
 ### 1.1.1
 * Fix issue with multiple environment variables for function (thanks to
-  [@Nevon](github.com/Nevon)).
+  [@Nevon](https://github.com/Nevon)).
 
 ### 1.1.0
 * Support `Fn::Join` operation (contribution by
