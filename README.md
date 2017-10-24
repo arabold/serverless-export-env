@@ -131,6 +131,10 @@ your project root folder.
 
 ## Releases
 
+### 1.1.3
+* Fixed an issue with `AWS::AccountId` being resolved as `[Object Promise]`
+  instead of the actual value.
+
 ### 1.1.2
 * Fixed an issue with CloudFormation resources not being resolved properly if
   the stack has more than 100 resources or exports.
