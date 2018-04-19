@@ -131,6 +131,9 @@ your project root folder.
 
 ## Releases
 
+### 1.2.0
+* Use operating system-specific end-of-line when creating `.env` file
+
 ### 1.1.3
 * Fixed an issue with `AWS::AccountId` being resolved as `[Object Promise]`
   instead of the actual value.

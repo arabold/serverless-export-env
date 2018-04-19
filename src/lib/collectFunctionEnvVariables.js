@@ -10,7 +10,7 @@ const _ = require("lodash");
  */
 function collectFunctionEnvVariables(serverless) {
 	const functions = _.get(serverless, "service.functions", {});
-	let envVars = {};
+	const envVars = {};
 
 	_.each(_.keys(functions), func => {
 		const functionEnvVars = functions[func].environment;

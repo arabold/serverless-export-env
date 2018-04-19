@@ -81,8 +81,8 @@ function resolveCloudFormationenvVars(serverless, envVars) {
 				}
 				else if (value["Fn::Join"]) {
 					// Join has two Arguments. first the delimiter and second the values
-					let delimiter = value["Fn::Join"][0];
-					let parts = value["Fn::Join"][1];
+					const delimiter = value["Fn::Join"][0];
+					const parts = value["Fn::Join"][1];
 					return BbPromise.map(parts, v => mapValue(v))
 					.then(resolvedParts => _.join(resolvedParts, delimiter));
 				}

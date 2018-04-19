@@ -1,6 +1,8 @@
 "use strict";
 
 const _ = require("lodash");
+const os = require("os");
+
 
 /**
  * Copies environment variables into a string ready for wrtiting to a file
@@ -14,7 +16,7 @@ function transformEnvVarsToString(envVars) {
 		return `${key}=${value}`;
 	});
 
-	return output.join("\r\n");
+	return output.join(os.EOL);
 }
 
 module.exports = transformEnvVarsToString;
