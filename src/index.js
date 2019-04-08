@@ -9,9 +9,8 @@ const collectFunctionEnvVariables = require("./lib/collectFunctionEnvVariables")
 const setEnvVariables = require("./lib/setEnvVariables");
 const collectOfflineEnvVariables = require("./lib/collectOfflineEnvVariables");
 const resolveCloudFormationEnvVariables = require("./lib/resolveCloudFormationEnvVariables");
-const collecResourcesOutputs = require("./lib/collecResourcesOutputs");
 const transformEnvVarsToString = require("./lib/transformEnvVarsToString");
-
+const collectResourcesOutputs = require("./lib/collectResourcesOutputs");
 /**
  * Serverless Plugin to extract Serverless' Lambda environment variables into
  * a local .env file for integration testing.
