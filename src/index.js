@@ -64,7 +64,7 @@ class ExportEnv {
 			_.assign(envVars, globalEnvironment);
 
 			// collect Resources Outputs
-			const resourcesOutputs = collecResourcesOutputs(this.serverless);
+			const resourcesOutputs = collectResourcesOutputs(this.serverless);
 			_.assign(envVars, resourcesOutputs);
 
 			// collect environment variables of functions
