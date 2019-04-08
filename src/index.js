@@ -9,7 +9,7 @@ const collectFunctionEnvVariables = require("./lib/collectFunctionEnvVariables")
 const setEnvVariables = require("./lib/setEnvVariables");
 const collectOfflineEnvVariables = require("./lib/collectOfflineEnvVariables");
 const resolveCloudFormationEnvVariables = require("./lib/resolveCloudFormationEnvVariables");
-const collectResourcesOutputs = require("./lib/collectResourcesOutputs");
+const collecResourcesOutputs = require("./lib/collecResourcesOutputs");
 const transformEnvVarsToString = require("./lib/transformEnvVarsToString");
 
 /**
@@ -65,7 +65,7 @@ class ExportEnv {
 			_.assign(envVars, globalEnvironment);
 
 			// collect Resources Outputs
-			const resourcesOutputs = collectResourcesOutputs(this.serverless);
+			const resourcesOutputs = collecResourcesOutputs(this.serverless);
 			_.assign(envVars, resourcesOutputs);
 
 			// collect environment variables of functions

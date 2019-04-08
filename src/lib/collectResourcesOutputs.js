@@ -8,7 +8,7 @@ const _ = require("lodash");
  * @param {Serverless} serverless - Serverless Instance
  * @returns {String[]} Returns a list of environment variables
  */
-function collectResorucesOutputs(serverless) {
+function collectResourcesOutputs(serverless) {
 
 	const outputs = _.get(serverless, "service.resources.Outputs", []);	
 	const envVars = {};
@@ -23,4 +23,4 @@ function collectResorucesOutputs(serverless) {
 	return envVars;
 }
 
-module.exports = collectResorucesOutputs;
+module.exports = collectResourcesOutputs;
