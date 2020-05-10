@@ -1,9 +1,9 @@
 "use strict";
 
-const _ = require("lodash")
-	, BbPromise = require("bluebird")
-	, fs = require("fs")
-	, path = require("path");
+const _ = require("lodash"),
+	BbPromise = require("bluebird"),
+	fs = require("fs"),
+	path = require("path");
 
 const collectFunctionEnvVariables = require("./lib/collectFunctionEnvVariables");
 const setEnvVariables = require("./lib/setEnvVariables");
@@ -23,12 +23,7 @@ class ExportEnv {
 		this.commands = {
 			"export-env": {
 				usage: "Exports your Serverless environment variables to a .env file ",
-				lifecycleEvents: [
-					"collect",
-					"resolve",
-					"apply",
-					"write"
-				]
+				lifecycleEvents: ["collect", "resolve", "apply", "write"]
 			}
 		};
 
@@ -50,7 +45,7 @@ class ExportEnv {
 	initOfflineHook() {
 		if (!this.isOfflineHooked) {
 			this.isOfflineHooked = true;
-			return this.serverless.pluginManager.run([ "export-env" ]);
+			return this.serverless.pluginManager.run(["export-env"]);
 		}
 		return BbPromise.resolve();
 	}
@@ -69,11 +64,17 @@ class ExportEnv {
 
 			// collect environment variables for serverless offline
 			if (this.isOfflineHooked) {
-				const offlineEnvVars = collectOfflineEnvVariables(this.serverless, this.options);
+				const offlineEnvVars = collectOfflineEnvVariables(
+					this.serverless,
+					this.options
+				);
 				_.assign(envVars, offlineEnvVars);
 			}
 
-			process.env.SLS_DEBUG && this.serverless.cli.log(`Found ${_.size(envVars)} environment variable(s)`);
+			process.env.SLS_DEBUG &&
+				this.serverless.cli.log(
+					`Found ${_.size(envVars)} environment variable(s)`
+				);
 			this.environmentVariables = envVars;
 			return BbPromise.resolve();
 		});
@@ -81,9 +82,12 @@ class ExportEnv {
 
 	resolveEnvVars() {
 		// resolve environment variables referencing CloudFormation
-		return resolveCloudFormationEnvVariables(this.serverless, this.environmentVariables)
-		.then(resolved => this.environmentVariables = resolved)
-		.return();
+		return resolveCloudFormationEnvVariables(
+			this.serverless,
+			this.environmentVariables
+		)
+			.then(resolved => (this.environmentVariables = resolved))
+			.return();
 	}
 
 	applyEnvVars() {
@@ -98,13 +102,28 @@ class ExportEnv {
 	writeEnvVars() {
 		return BbPromise.try(() => {
 			process.env.SLS_DEBUG && this.serverless.cli.log("Writing .env file");
-			const envFilePath = path.resolve(this.serverless.config.servicePath, this.envFileName);
+
+			const params = this.serverless.service.custom["export-env"];
+
+			let filename = this.envFileName;
+			let pathFromRoot = "";
+
+			if (params != null) {
+				if (params.filename != null) filename = params.filename;
+				if (params.pathFromRoot != null) pathFromRoot = params.pathFromRoot;
+			}
+
+			const envFilePath = path.resolve(
+				this.serverless.config.servicePath,
+				pathFromRoot,
+				filename
+			);
+
 			const envDocument = transformEnvVarsToString(this.environmentVariables);
 
 			fs.writeFileSync(envFilePath, envDocument);
 		});
 	}
-
 }
 
 module.exports = ExportEnv;
