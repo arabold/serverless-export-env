@@ -115,6 +115,10 @@ This example will export all environment variables into a `.env` file in your pr
 
 ## Releases
 
+### 1.3.1
+
+- Explicitly set environment variables during local invocation of the Lambda (`sls invoke local`)
+
 ### 1.3.0
 
 - Support different output file name and path. Thanks to [philiiiiiipp](https://github.com/philiiiiiipp).
