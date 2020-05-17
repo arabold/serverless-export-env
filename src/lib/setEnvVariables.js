@@ -32,6 +32,7 @@ function setEnvVariables(serverless, environment) {
 
   // Set the global environment
   _.assign(serverless.service.provider.environment, environment);
+  _.extend(process.env, environment);
 }
 
 module.exports = setEnvVariables;
