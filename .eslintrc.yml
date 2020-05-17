@@ -1,0 +1,12 @@
+---
+root: true
+env:
+  es6: true
+  node: true
+  mocha: true
+plugins:
+  - prettier
+extends:
+  - eslint:recommended
+rules:
+  prettier/prettier: error

@@ -9,15 +9,15 @@ const _ = require("lodash");
  * @returns {String[]} Returns a list of environment variables
  */
 function collectFunctionEnvVariables(serverless) {
-	const functions = _.get(serverless, "service.functions", {});
-	const envVars = {};
+  const functions = _.get(serverless, "service.functions", {});
+  const envVars = {};
 
-	_.each(_.keys(functions), func => {
-		const functionEnvVars = functions[func].environment;
-		_.assign(envVars, functionEnvVars);
-	});
+  _.each(_.keys(functions), (func) => {
+    const functionEnvVars = functions[func].environment;
+    _.assign(envVars, functionEnvVars);
+  });
 
-	return envVars;
+  return envVars;
 }
 
 module.exports = collectFunctionEnvVariables;

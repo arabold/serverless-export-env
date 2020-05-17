@@ -5,6 +5,9 @@
   "main": "src/index.js",
   "author": "Andre Rabold",
   "license": "MIT",
+  "scripts": {
+    "lint": "eslint 'src/**/*.js'"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/arabold/serverless-export-env.git"
@@ -14,10 +17,24 @@
   },
   "homepage": "https://github.com/arabold/serverless-export-env",
   "dependencies": {
-    "bluebird": "^3.5.1",
-    "lodash": "^4.17.5"
+    "bluebird": "^3.7.2",
+    "lodash": "^4.17.15"
   },
   "devDependencies": {
-    "eslint": "^4.19.1"
+    "eslint": "^7.0.0",
+    "eslint-plugin-prettier": "^3.1.3",
+    "prettier": "^2.0.5"
+  },
+  "prettier": {
+    "printWidth": 120,
+    "tabWidth": 2,
+    "useTabs": false,
+    "semi": true,
+    "singleQuote": false,
+    "quoteProps": "as-needed",
+    "trailingComma": "es5",
+    "bracketSpacing": true,
+    "jsxBracketSameLine": false,
+    "arrowParens": "always"
   }
 }
