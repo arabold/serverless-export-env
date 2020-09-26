@@ -99,7 +99,7 @@ class ExportEnv {
     return BbPromise.try(() => {
       process.env.SLS_DEBUG && this.serverless.cli.log("Writing .env file");
 
-      const params = this.serverless.service.custom["export-env"];
+      const params = _.get(this.serverless, 'service.custom.export-env');
 
       let filename = this.envFileName;
       let pathFromRoot = "";
