@@ -115,6 +115,10 @@ This example will export all environment variables into a `.env` file in your pr
 
 ## Releases
 
+### 1.4.0
+
+- Collect and set resource values from actual Cloud Formation stack output. Thanks to [andersquist](https://github.com/andersquist) for his contribution!
+
 ### 1.3.1
 
 - Explicitly set environment variables during local invocation of the Lambda (`sls invoke local`)
