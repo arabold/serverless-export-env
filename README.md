@@ -118,6 +118,7 @@ This example will export all environment variables into a `.env` file in your pr
 ### 1.4.0
 
 - Collect and set resource values from actual Cloud Formation stack output. Thanks to [andersquist](https://github.com/andersquist) for his contribution!
+- Fix error when serverless.yml doesn't contain a custom section. Thanks to [michael-wolfenden](https://github.com/michael-wolfenden)!
 
 ### 1.3.1
 
