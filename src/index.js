@@ -11,6 +11,7 @@ const collectOfflineEnvVariables = require("./lib/collectOfflineEnvVariables");
 const resolveCloudFormationEnvVariables = require("./lib/resolveCloudFormationEnvVariables");
 const transformEnvVarsToString = require("./lib/transformEnvVarsToString");
 const collectResourcesOutputs = require("./lib/collectResourcesOutputs");
+const collectStackOutputs = require("./lib/collectStackOutputs");
 
 /**
  * Serverless Plugin to extract Serverless' Lambda environment variables into
@@ -55,27 +56,29 @@ class ExportEnv {
     return BbPromise.try(() => {
       const envVars = {};
 
-      // collect global environment variables
-      const globalEnvironment = this.serverless.service.provider.environment;
-      _.assign(envVars, globalEnvironment);
+      return collectStackOutputs(this.serverless).then((stackOutputs) => {
+        // collect global environment variables
+        const globalEnvironment = this.serverless.service.provider.environment;
+        _.assign(envVars, globalEnvironment);
 
-      // collect Resources Outputs
-      const resourcesOutputs = collectResourcesOutputs(this.serverless);
-      _.assign(envVars, resourcesOutputs);
+        // collect Resources Outputs
+        const resourcesOutputs = collectResourcesOutputs(this.serverless, stackOutputs);
+        _.assign(envVars, resourcesOutputs);
 
-      // collect environment variables of functions
-      const functionEnvironment = collectFunctionEnvVariables(this.serverless);
-      _.assign(envVars, functionEnvironment);
+        // collect environment variables of functions
+        const functionEnvironment = collectFunctionEnvVariables(this.serverless);
+        _.assign(envVars, functionEnvironment);
 
-      // collect environment variables for serverless offline
-      if (this.isOfflineHooked) {
-        const offlineEnvVars = collectOfflineEnvVariables(this.serverless, this.options);
-        _.assign(envVars, offlineEnvVars);
-      }
+        // collect environment variables for serverless offline
+        if (this.isOfflineHooked) {
+          const offlineEnvVars = collectOfflineEnvVariables(this.serverless, this.options);
+          _.assign(envVars, offlineEnvVars);
+        }
 
-      process.env.SLS_DEBUG && this.serverless.cli.log(`Found ${_.size(envVars)} environment variable(s)`);
-      this.environmentVariables = envVars;
-      return BbPromise.resolve();
+        process.env.SLS_DEBUG && this.serverless.cli.log(`Found ${_.size(envVars)} environment variable(s)`);
+        this.environmentVariables = envVars;
+        return BbPromise.resolve();
+      });
     });
   }
 
