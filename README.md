@@ -115,6 +115,10 @@ This example will export all environment variables into a `.env` file in your pr
 
 ## Releases
 
+### 1.4.1
+
+- Disabled calls to the real aws infrastructure when running with [Serverless Offline](https://www.serverless.com/plugins/serverless-offline). Thanks to [marooned071](https://github.com/marooned071) for the contribution.
+
 ### 1.4.0
 
 - Collect and set resource values from actual Cloud Formation stack output. Thanks to [andersquist](https://github.com/andersquist) for his contribution!
