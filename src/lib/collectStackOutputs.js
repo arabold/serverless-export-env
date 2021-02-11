@@ -13,7 +13,7 @@ function describeStack(AWS, outputs, nextToken) {
         return describeStack(AWS, outputs, response.NextToken);
       }
     })
-    .return(outputs);
+    .then(() => outputs);
 }
 
 /**

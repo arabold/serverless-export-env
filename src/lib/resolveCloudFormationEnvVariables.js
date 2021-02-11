@@ -6,14 +6,14 @@ const BbPromise = require("bluebird"),
 function listExports(AWS, exports, nextToken) {
   exports = exports || [];
   return AWS.request("CloudFormation", "listExports", { NextToken: nextToken })
-    .tap((response) => {
+    .then((response) => {
       exports.push.apply(exports, response.Exports);
       if (response.NextToken) {
         // Query next page
         return listExports(AWS, exports, response.NextToken);
       }
     })
-    .return(exports);
+    .then(() => exports);
 }
 
 function listStackResources(AWS, resources, nextToken) {
@@ -29,7 +29,7 @@ function listStackResources(AWS, resources, nextToken) {
         return listStackResources(AWS, resources, response.NextToken);
       }
     })
-    .return(resources);
+    .then(() => resources);
 }
 
 /**
