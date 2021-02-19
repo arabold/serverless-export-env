@@ -3,7 +3,8 @@
 const _ = require("lodash"),
   BbPromise = require("bluebird"),
   fs = require("fs"),
-  path = require("path");
+  path = require("path"),
+  dotenv = require("dotenv");
 
 const collectFunctionEnvVariables = require("./lib/collectFunctionEnvVariables");
 const setEnvVariables = require("./lib/setEnvVariables");
@@ -117,6 +118,19 @@ class ExportEnv {
       }
 
       const envFilePath = path.resolve(this.serverless.config.servicePath, pathFromRoot, filename);
+
+      if (params.overwrite === false) {
+        process.env.SLS_DEBUG && this.serverless.cli.log('overwrite=false, preserving existing values in ENV file.');
+        let envFile;
+        try { envFile = fs.readFileSync(envFilePath); } catch(e) {}
+        if (envFile) {
+          const existingVariables = dotenv.parse(Buffer.from(envFile), { debug: true });
+          this.environmentVariables = _.assign(
+            existingVariables,
+            this.environmentVariables, // Takes precedence
+          );
+        }
+      }
 
       const envDocument = transformEnvVarsToString(this.environmentVariables);
 
