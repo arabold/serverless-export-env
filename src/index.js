@@ -6,13 +6,13 @@ const _ = require("lodash"),
   path = require("path"),
   dotenv = require("dotenv");
 
-const collectFunctionEnvVariables = require("./lib/collectFunctionEnvVariables");
 const setEnvVariables = require("./lib/setEnvVariables");
 const collectOfflineEnvVariables = require("./lib/collectOfflineEnvVariables");
 const resolveCloudFormationEnvVariables = require("./lib/resolveCloudFormationEnvVariables");
 const transformEnvVarsToString = require("./lib/transformEnvVarsToString");
 const collectResourcesOutputs = require("./lib/collectResourcesOutputs");
 const collectStackOutputs = require("./lib/collectStackOutputs");
+const collectYmlEnvVariables = require("./lib/collectYmlEnvVariables");
 
 /**
  * Serverless Plugin to extract Serverless' Lambda environment variables into
@@ -65,13 +65,7 @@ class ExportEnv {
         });
       }
 
-      // collect global environment variables
-      const globalEnvironment = this.serverless.service.provider.environment;
-      _.assign(envVars, globalEnvironment);
-
-      // collect environment variables of functions
-      const functionEnvironment = collectFunctionEnvVariables(this.serverless);
-      _.assign(envVars, functionEnvironment);
+      collectYmlEnvVariables(this.serverless, envVars);
 
       // collect environment variables for serverless offline
       if (this.isOfflineHooked) {
