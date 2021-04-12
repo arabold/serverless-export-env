@@ -46,7 +46,8 @@ class ExportEnv {
   }
 
   initOfflineHook() {
-    if (!this.isOfflineHooked) {
+    const params = _.get(this.serverless, "service.custom.export-env");
+    if (!this.isOfflineHooked && !params.offlineDisabled) {
       this.isOfflineHooked = true;
       return this.serverless.pluginManager.run(["export-env"]);
     }
