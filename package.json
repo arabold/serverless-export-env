@@ -1,6 +1,6 @@
 {
   "name": "serverless-export-env",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "Serverless plugin to export environment variables into a .env file",
   "main": "src/index.js",
   "author": "Andre Rabold",
