@@ -115,6 +115,15 @@ This example will export all environment variables into a `.env` file in your pr
 
 ## Releases
 
+### 1.4.2
+
+- Fixed some compatibility issues with the latest Serverless framework release. Thanks to (pgrzesik)[https://github.com/pgrzesik] for the necessary updates.
+- Reverted changes in 1.4.1. Unfortunately we broke the semver contract by introducing a breaking feature in a patch update. This feature needs to be rethought and added back in a 1.5.x release as optional. Until then, I had to remove it again.
+
+### 1.4.1
+
+- Disabled calls to the real aws infrastructure when running with Serverless Offline. Thanks to marooned071 for the contribution.
+
 ### 1.4.0
 
 - Collect and set resource values from actual Cloud Formation stack output. Thanks to [andersquist](https://github.com/andersquist) for his contribution!
