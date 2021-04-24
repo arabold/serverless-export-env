@@ -115,9 +115,13 @@ This example will export all environment variables into a `.env` file in your pr
 
 ## Releases
 
-### 1.4.3
+### 1.4.4
 
 - Reverted changes in 1.4.1. Unfortunately we broke the semver contract by introducing a breaking feature in a patch update. This feature needs to be rethought and added back in a 1.5.x release as optional. Until then, I had to remove it again.
+
+#### 1.4.3
+
+- Internal version (not published)
 
 ### 1.4.2
 
