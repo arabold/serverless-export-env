@@ -56,41 +56,37 @@ class ExportEnv {
     return BbPromise.try(() => {
       const envVars = {};
 
-      if (!this.isOfflineHooked) {
-        collectStackOutputs(this.serverless).then((stackOutputs) => {
-          // collect Resources Outputs
-          const resourcesOutputs = collectResourcesOutputs(this.serverless, stackOutputs);
-          _.assign(envVars, resourcesOutputs);
-        });
-      }
+      return collectStackOutputs(this.serverless).then((stackOutputs) => {
+        // collect global environment variables
+        const globalEnvironment = this.serverless.service.provider.environment;
+        _.assign(envVars, globalEnvironment);
 
-      // collect global environment variables
-      const globalEnvironment = this.serverless.service.provider.environment;
-      _.assign(envVars, globalEnvironment);
+        // collect Resources Outputs
+        const resourcesOutputs = collectResourcesOutputs(this.serverless, stackOutputs);
+        _.assign(envVars, resourcesOutputs);
 
-      // collect environment variables of functions
-      const functionEnvironment = collectFunctionEnvVariables(this.serverless);
-      _.assign(envVars, functionEnvironment);
+        // collect environment variables of functions
+        const functionEnvironment = collectFunctionEnvVariables(this.serverless);
+        _.assign(envVars, functionEnvironment);
 
-      // collect environment variables for serverless offline
-      if (this.isOfflineHooked) {
-        const offlineEnvVars = collectOfflineEnvVariables(this.serverless, this.options);
-        _.assign(envVars, offlineEnvVars);
-      }
+        // collect environment variables for serverless offline
+        if (this.isOfflineHooked) {
+          const offlineEnvVars = collectOfflineEnvVariables(this.serverless, this.options);
+          _.assign(envVars, offlineEnvVars);
+        }
 
-      process.env.SLS_DEBUG && this.serverless.cli.log(`Found ${_.size(envVars)} environment variable(s)`);
-      this.environmentVariables = envVars;
-      return BbPromise.resolve();
+        process.env.SLS_DEBUG && this.serverless.cli.log(`Found ${_.size(envVars)} environment variable(s)`);
+        this.environmentVariables = envVars;
+        return BbPromise.resolve();
+      });
     });
   }
 
   resolveEnvVars() {
-    if (!this.isOfflineHooked) {
-      // resolve environment variables referencing CloudFormation
-      return resolveCloudFormationEnvVariables(this.serverless, this.environmentVariables)
-        .then((resolved) => (this.environmentVariables = resolved))
-        .return();
-    }
+    // resolve environment variables referencing CloudFormation
+    return resolveCloudFormationEnvVariables(this.serverless, this.environmentVariables)
+      .then((resolved) => (this.environmentVariables = resolved))
+      .return();
   }
 
   applyEnvVars() {
@@ -106,7 +102,7 @@ class ExportEnv {
     return BbPromise.try(() => {
       process.env.SLS_DEBUG && this.serverless.cli.log("Writing .env file");
 
-      const params = _.get(this.serverless, "service.custom.export-env");
+      const params = _.get(this.serverless, 'service.custom.export-env');
 
       let filename = this.envFileName;
       let pathFromRoot = "";
