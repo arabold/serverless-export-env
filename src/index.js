@@ -6,12 +6,9 @@ const _ = require("lodash"),
   path = require("path");
 
 const collectFunctionEnvVariables = require("./lib/collectFunctionEnvVariables");
-const setEnvVariables = require("./lib/setEnvVariables");
-const collectOfflineEnvVariables = require("./lib/collectOfflineEnvVariables");
 const resolveCloudFormationEnvVariables = require("./lib/resolveCloudFormationEnvVariables");
 const transformEnvVarsToString = require("./lib/transformEnvVarsToString");
-const collectResourcesOutputs = require("./lib/collectResourcesOutputs");
-const collectStackOutputs = require("./lib/collectStackOutputs");
+const { listExports, listStackResources, describeStack } = require("./lib/aws-helper");
 
 /**
  * Serverless Plugin to extract Serverless' Lambda environment variables into
@@ -26,6 +23,25 @@ class ExportEnv {
       "export-env": {
         usage: "Exports your Serverless environment variables to a .env file ",
         lifecycleEvents: ["collect", "resolve", "apply", "write"],
+        options: {
+          function: {
+            usage: 'Specify the function for which you want to generate the .env file (e.g. "--function myFunction")',
+            shortcut: "f",
+            required: false,
+            type: "string",
+          },
+          filename: {
+            usage: 'Name of output file (e.g. "--filename .env")',
+            shortcut: "p",
+            required: false,
+            type: "string",
+          },
+          overwrite: {
+            usage: 'Overwrite existing file (e.g. "--overwrite")',
+            required: false,
+            type: "boolean",
+          },
+        },
       },
     };
 
@@ -33,15 +49,47 @@ class ExportEnv {
     this.hooks = {
       "before:offline:start:init": this.initOfflineHook.bind(this),
       "before:offline:start": this.initOfflineHook.bind(this),
-      "before:invoke:local:invoke": this.initOfflineHook.bind(this),
+      // We monkey-patch the AWS plugin instead; so the `invoke:local:invoke` is not needed anymore
+      // "before:invoke:local:invoke": this.initOfflineHook.bind(this),
       "export-env:collect": this.collectEnvVars.bind(this),
       "export-env:resolve": this.resolveEnvVars.bind(this),
-      "export-env:apply": this.applyEnvVars.bind(this),
+      "export-env:apply": this.setEnvVars.bind(this),
       "export-env:write": this.writeEnvVars.bind(this),
     };
 
-    this.environmentVariables = {};
-    this.envFileName = ".env";
+    this.globalEnvironmentVariables = {};
+    this.functionEnvironmentVariables = {};
+    this.filename = _.get(options, "filename", ".env");
+    this.enableOffline = true;
+    this.overwrite = _.get(options, "overwrite", false);
+    this.refMap = {};
+    this.getAttMap = {};
+    this.importValueMap = {};
+    this.isEnabled = true; // will be set in `_loadConfig()` below
+
+    // Monkey-patch `AwsInvokeLocal` plugin to support our custom variable resolution
+    const AwsInvokeLocal = serverless.pluginManager.plugins.find(
+      (plugin) => plugin.constructor.name === "AwsInvokeLocal"
+    );
+    if (AwsInvokeLocal) {
+      const loadEnvVarsOriginal = AwsInvokeLocal.loadEnvVars.bind(AwsInvokeLocal);
+      AwsInvokeLocal.loadEnvVars = () => {
+        return this.initOfflineHook().then(() => loadEnvVarsOriginal());
+      };
+    }
+  }
+
+  _loadConfig() {
+    const params = _.get(this.serverless, "service.custom.export-env");
+    this.filename = _.get(params, "filename", this.filename);
+    this.enableOffline = _.get(params, "enableOffline", this.enableOffline);
+    this.overwrite = _.get(params, "overwrite", this.overwrite);
+    this.refMap = _.get(params, "refMap", this.refMap);
+    this.getAttMap = _.get(params, "getAttMap", this.getAttMap);
+    this.importValueMap = _.get(params, "importValueMap", this.importValueMap);
+
+    // `true` if the plugin should run, `false` otherwise
+    this.isEnabled = !this.isOfflineHooked || this.enableOffline;
   }
 
   initOfflineHook() {
@@ -54,69 +102,97 @@ class ExportEnv {
 
   collectEnvVars() {
     return BbPromise.try(() => {
-      const envVars = {};
-
-      return collectStackOutputs(this.serverless).then((stackOutputs) => {
-        // collect global environment variables
-        const globalEnvironment = this.serverless.service.provider.environment;
-        _.assign(envVars, globalEnvironment);
-
-        // collect Resources Outputs
-        const resourcesOutputs = collectResourcesOutputs(this.serverless, stackOutputs);
-        _.assign(envVars, resourcesOutputs);
-
-        // collect environment variables of functions
-        const functionEnvironment = collectFunctionEnvVariables(this.serverless);
-        _.assign(envVars, functionEnvironment);
-
-        // collect environment variables for serverless offline
-        if (this.isOfflineHooked) {
-          const offlineEnvVars = collectOfflineEnvVariables(this.serverless, this.options);
-          _.assign(envVars, offlineEnvVars);
-        }
-
-        process.env.SLS_DEBUG && this.serverless.cli.log(`Found ${_.size(envVars)} environment variable(s)`);
-        this.environmentVariables = envVars;
+      this._loadConfig();
+      if (!this.isEnabled) {
         return BbPromise.resolve();
-      });
+      }
+
+      // collect environment variables
+      this.globalEnvironmentVariables = this.serverless.service.provider.environment || {};
+      this.functionEnvironmentVariables = collectFunctionEnvVariables(this.serverless);
+
+      return BbPromise.resolve();
     });
   }
 
   resolveEnvVars() {
-    // resolve environment variables referencing CloudFormation
-    return resolveCloudFormationEnvVariables(this.serverless, this.environmentVariables)
-      .then((resolved) => (this.environmentVariables = resolved))
-      .return();
+    return BbPromise.try(() => {
+      this._loadConfig();
+      if (!this.isEnabled) {
+        return BbPromise.resolve();
+      }
+
+      const sls = this.serverless;
+      const AWS = this.serverless.providers.aws;
+      const globalEnv = this.globalEnvironmentVariables;
+      const maps = {
+        refMap: this.refMap,
+        getAttMap: this.getAttMap,
+        importValueMap: this.importValueMap,
+      };
+      return BbPromise.all([describeStack(AWS), listStackResources(AWS), listExports(AWS)]).then(
+        ([stack, resources, exports]) => {
+          // Resolve global and function environment variables
+          return BbPromise.all([
+            resolveCloudFormationEnvVariables(sls, globalEnv, stack, resources, exports, maps).then(
+              (resolved) => (this.globalEnvironmentVariables = resolved)
+            ),
+            BbPromise.all(
+              _.map(this.functionEnvironmentVariables, (funcEnv, funcName) =>
+                resolveCloudFormationEnvVariables(sls, funcEnv, stack, resources, exports, maps).then(
+                  (resolved) => (this.functionEnvironmentVariables[funcName] = resolved)
+                )
+              )
+            ),
+          ]).return();
+        }
+      );
+    });
   }
 
-  applyEnvVars() {
+  setEnvVars() {
     return BbPromise.try(() => {
+      this._loadConfig();
+      if (!this.isEnabled || !this.isOfflineHooked) {
+        // This code does only run when offline but not when executed via `export-env`
+        return BbPromise.resolve();
+      }
+
       // If this is a local lambda invoke, replace the service environment with the resolved one
-      if (this.isOfflineHooked) {
-        setEnvVariables(this.serverless, this.environmentVariables);
+      process.env.SLS_DEBUG && this.serverless.cli.log(`[export-env] Updating serverless environment variable(s)`);
+      this.serverless.service.provider.environment = this.globalEnvironmentVariables;
+      if (_.has(this.serverless, "service.functions")) {
+        _.forEach(
+          this.serverless.service.functions,
+          (func, key) => (func.environment = this.functionEnvironmentVariables[key])
+        );
       }
     });
   }
 
   writeEnvVars() {
     return BbPromise.try(() => {
-      process.env.SLS_DEBUG && this.serverless.cli.log("Writing .env file");
-
-      const params = _.get(this.serverless, 'service.custom.export-env');
-
-      let filename = this.envFileName;
-      let pathFromRoot = "";
-
-      if (params != null) {
-        if (params.filename != null) filename = params.filename;
-        if (params.pathFromRoot != null) pathFromRoot = params.pathFromRoot;
+      this._loadConfig();
+      if (!this.isEnabled || this.isOfflineHooked) {
+        // This code does not run when offline but only when executed via `export-env`
+        return BbPromise.resolve();
       }
 
-      const envFilePath = path.resolve(this.serverless.config.servicePath, pathFromRoot, filename);
+      const envFilePath = path.resolve(this.serverless.config.servicePath, this.filename);
+      if (!fs.existsSync(envFilePath) || this.overwrite) {
+        process.env.SLS_DEBUG && this.serverless.cli.log(`[export-env] Writing ${this.filename} file`);
 
-      const envDocument = transformEnvVarsToString(this.environmentVariables);
+        const envVars = _.clone(this.globalEnvironmentVariables);
+        if (this.options.function) {
+          _.assign(envVars, this.functionEnvironmentVariables[this.options.function]);
+        }
+        const envDocument = transformEnvVarsToString(envVars);
 
-      fs.writeFileSync(envFilePath, envDocument);
+        fs.writeFileSync(envFilePath, envDocument);
+      } else {
+        process.env.SLS_DEBUG &&
+          this.serverless.cli.log(`[export-env] ${this.filename} already exists. Leaving it untouched.`);
+      }
     });
   }
 }
