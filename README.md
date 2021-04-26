@@ -35,7 +35,7 @@ plugins:
 
 That's it! You can now call `sls export-env` in your terminal to generate the `.env` file based on your Serverless configuration. Or, you can just run `sls invoke local -f FUNCTION` or `sls offline start` to run your code locally as usual.
 
-## Examples
+### Examples
 
 ```sh
 serverless export-env
@@ -49,67 +49,9 @@ serverless export-env --function MyFunction --filename .env-MyFunction
 
 This will export all environment variables of the `MyFunction` Lambda function into a `.env-MyFunction` file in your project root folder.
 
-## Configuration
-
-The plugin supports various configuration options under `custom.export-env` in your `serverless.yml` file:
-
-```yaml
-custom:
-  export-env:
-    filename: .env
-    overwrite: false
-    enableOffline: true
-```
-
-### Configuration Options
-
-| Option         | Default | Description                                                                                   |
-| -------------- | ------- | --------------------------------------------------------------------------------------------- |
-| filename       | `.env`  | Target file name where to write the environment variables to, relative to the project root.   |
-| enableOffline  | `true`  | Evaluate the environment variables when running `sls invoke local` or `sls offline start`.    |
-| overwrite      | `false` | Overwrite the file even if it exists already.                                                 |
-| refMap         | `{}`    | A mapping of [resource resolutions](#Resource-Resoluition) for the `Ref` function             |
-| getAttMap      | `{}`    | A mapping of [resource resolutions](#Resource-Resoluition) for the `Fn::GetAtt` function      |
-| importValueMap | `{}`    | A mapping of [resource resolutions](#Resource-Resoluition) for the `Fn::ImportValue` function |
-
 ## Referencing CloudFormation resources
 
-The Serverless Framework offers a very powerful feature: You are able to reference AWS resources anywhere from within your `serverless.yml` and it will automatically resolve them to their respective values during deployment. A common example is to bind a DynamoDB table name to an environment variable, so you can access it in your Lambda function implementation later:
-
-```yaml
-provider:
-  environment:
-    TABLE_NAME:
-      Ref: MyDynamoDbTable
-# ...
-resources:
-  Resources:
-    MyDynamoDbTable:
-      Type: AWS::DynamoDB::Table
-      DeletionPolicy: Retain
-      Properties:
-        # ...
-```
-
-Later in your code you can simply access `process.env.TABLE_NAME` to get the proper DynamoDB table name without having to hardcode anything.
-
-```js
-const AWS = require("aws-sdk");
-const docClient = new AWS.DynamoDB.DocumentClient({
-  /* ... */
-});
-docClient.get(
-  {
-    TableName: process.env.TABLE_NAME,
-    Key: { foo: "bar" },
-  },
-  (result) => {
-    console.log(result);
-  }
-);
-```
-
-So far, all this works out of the box when being deployed, without the need for this plugin. However, if you try to run the above code locally using `sls invoke local` or `sls offline start`, the `TABLE_NAME` environment variable will not be initialized properly. This is where the _Serverless Export Env Plugin_ comes in. It automatically resolves [intrinsic functions](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference.html) like `Ref` and `Fn::ImportValue` and initializes your local environment properly.
+The Serverless Framework offers a very powerful feature: You are able to reference AWS resources anywhere from within your `serverless.yml` and it will automatically resolve them to their respective values during deployment. However, Serverless' built-in variable resolution is very limited and will not work properly when run locally. The _Serverless Export Env Plugin_ extends this functionality and automatically resolves most [intrinsic functions](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference.html) and initializes your local environment properly.
 
 ### Supported instrinsic functions
 
@@ -129,7 +71,7 @@ So far, all this works out of the box when being deployed, without the need for 
 - `Fn::ImportValue`
 - `Ref`
 
-Example:
+### Examples
 
 ```yaml
 provider:
@@ -149,9 +91,32 @@ provider:
     S3_BUCKET_URL: !Join ["", [https://s3.amazonaws.com/, Ref: MyBucket]]
 ```
 
-Note that `sls invoke local` will report an error if you're using any function other than `Fn::ImportValue` or `Ref` in your environment variables. This is a Serverless limitation and cannot be fixed by this plugin unfortunately.
+You can then access the environment variable in your code the usual way (e.g. `process.env.S3_BUCKET_URL`).
 
-### Resource Resolution
+## Configuration
+
+The plugin supports various configuration options under `custom.export-env` in your `serverless.yml` file:
+
+```yaml
+custom:
+  export-env:
+    filename: .env
+    overwrite: false
+    enableOffline: true
+```
+
+### Configuration Options
+
+| Option         | Default | Description                                                                                          |
+| -------------- | ------- | ---------------------------------------------------------------------------------------------------- |
+| filename       | `.env`  | Target file name where to write the environment variables to, relative to the project root.          |
+| enableOffline  | `true`  | Evaluate the environment variables when running `sls invoke local` or `sls offline start`.           |
+| overwrite      | `false` | Overwrite the file even if it exists already.                                                        |
+| refMap         | `{}`    | A mapping of [resource resolutions](#Custom-Resource-Resoluition) for the `Ref` function             |
+| getAttMap      | `{}`    | A mapping of [resource resolutions](#Custom-Resource-Resoluition) for the `Fn::GetAtt` function      |
+| importValueMap | `{}`    | A mapping of [resource resolutions](#Custom-Resource-Resoluition) for the `Fn::ImportValue` function |
+
+### Custom Resource Resolution
 
 The plugin will try its best to resolve resource references like `Ref`, `Fn::GetAtt`, and `Fn::ImportValue` for you. However, in sometimes this might fail or you might want to use mocked values instead. In those cases, you can override those values using the `refMap`, `getAttMap` and `importValueMap` options.
 
@@ -163,11 +128,14 @@ The plugin will try its best to resolve resource references like `Ref`, `Fn::Get
 custom:
   export-env:
     refMap:
+      # Resolve `!Ref MyDbTable` as `mock-myTable`
       MyDbTable: "mock-myTable"
     getAttMap:
+      # Resolve `!GetAtt ElasticSearchInstance.DomainEndpoint` as `localhost:9200`
       ElasticSearchInstance:
         DomainEndpoint: "localhost:9200"
     importValueMap:
+      # Resolve `!ImportValue OtherLambdaFunction` as `arn:aws:lambda:us-east-2::function:other-lambda-function`
       OtherLambdaFunction: "arn:aws:lambda:us-east-2::function:other-lambda-function"
 ```
 
