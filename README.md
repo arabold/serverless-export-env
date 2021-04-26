@@ -197,6 +197,7 @@ sls export-env --function hello --filename .env-hello
 - Running `sls invoke local` or `sls offline start` will no longer create or update your `.env` file. If you want to create an `.env` file, simply run `sls export-env` instead.
 - By default the plugin will no longer overwrite any existing `.env` file. To enable overwriting existing files either specific `--overwrite` in the command line or set the `custom.export-env.overwrite` configuration option.
 - Resource `Outputs` values (`resources.Resources.Outputs.*`) are no longer exported automatically. This has always been a workaround and causes more problems than it actually solved. The plugin will try its best to resolve `Fn::GetAtt` and other references for you now, so there should be little need for the old behavior anymore. Add the desired value new environment variable to `provider.environment` instead.
+- Running `sls export-env` will no longer merge the environment variables of all functions into a single `.env` file. Instead pass the name of the desired function as `--function` argument to the command line. If no function is specified, only global environment variables will be exported.
 - The configuration options `filename` and `pathFromRoot` have been merged to `filename` now. You can specify relative paths in `filename` now such as `./dist/.env`. Make sure the target folder exists!
 
 ## Releases
