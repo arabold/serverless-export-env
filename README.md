@@ -20,10 +20,10 @@ Add the npm package to your project:
 
 ```sh
 # Via yarn
-$ yarn add arabold/serverless-export-env --dev
+$ yarn add arabold/serverless-export-env@2.0.0-alpha.0 --dev
 
 # Via npm
-$ npm install arabold/serverless-export-env --save-dev
+$ npm install arabold/serverless-export-env@2.0.0-alpha.0 --save-dev
 ```
 
 Add the plugin to your `serverless.yml`. It should be the first to ensure it can resolve your environment variables before other plugins see them:
@@ -204,7 +204,7 @@ sls export-env --function hello --filename .env-hello
 
 ### 2.0.0
 
-- Complete rewrite of the variable resolver. We use the amazing [cfn-resolver-lib](https://github.com/robessog/cfn-resolver-lib) lib now. This allows us to support not only `Ref` and `Fn::ImportValue` as in previous releases, but we're able to resolve most commonly used intrinstic functions automatically now.
+- Complete rewrite of the variable resolver. We use the amazing [cfn-resolver-lib](https://github.com/robessog/cfn-resolver-lib) lib now. This allows us to support not only `Ref` and `Fn::ImportValue` as in previous releases, but we're able to resolve the most commonly used intrinsic functions automatically now.
 
 <details>
 <summary>1.x Releases</summary>
