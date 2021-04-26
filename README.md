@@ -7,12 +7,12 @@
 
 ## About
 
-The [Serverless Framework](https://www.serverless.com/) offers a very powerful feature: You are able to reference AWS resources anywhere from within your `serverless.yml` and it will automatically resolve them to their respective values during deployment. However, this only works properly once your code is deployed to AWS. The _Serverless Export Env Plugin_ extends the Serverless Framework's built-in variable resultion capabilities by adding support many additional CloudFormation intrinsic functions (`Fn::GetAtt`, `Fn::Join`, `Fn::Sub`, etc.) as well as variable references (`AWS::Region`, `AWS::StackId`, etc.).
+The [Serverless Framework](https://www.serverless.com/) offers a very powerful feature: You can reference AWS resources anywhere from within your `serverless.yml` and it will automatically resolve them to their respective values during deployment. However, this only works properly once your code is deployed to AWS. The _Serverless Export Env Plugin_ extends the Serverless Framework's built-in variable solution capabilities by adding support many additional CloudFormation intrinsic functions (`Fn::GetAtt`, `Fn::Join`, `Fn::Sub`, etc.) as well as variable references (`AWS::Region`, `AWS::StackId`, etc.).
 
 The _Serverless Export Env Plugin_ helps solve two main use cases:
 
 1. It will automatically hook into the `sls invoke local` and `sls offline start` (see [Serverless Offline Plugin](https://github.com/dherault/serverless-offline)) and help resolve your environment variables. This is fully transparent to your application and other plugins.
-2. Invoke `sls export-env` from command line to generate a `.env` file on your local filesystem. Then use a library such as [dotenv](https://www.npmjs.com/package/dotenv) to import it into your code, e.g. during local integration tests.
+2. Invoke `sls export-env` from the command line to generate a `.env` file on your local filesystem. Then use a library such as [dotenv](https://www.npmjs.com/package/dotenv) to import it into your code, e.g. during local integration tests.
 
 ## Usage
 
@@ -26,32 +26,32 @@ $ yarn add arabold/serverless-export-env@2.0.0-alpha.0 --dev
 $ npm install arabold/serverless-export-env@2.0.0-alpha.0 --save-dev
 ```
 
-Add the plugin to your `serverless.yml`. It should be the first to ensure it can resolve your environment variables before other plugins see them:
+Add the plugin to your `serverless.yml`. It should be listed first to ensure it can resolve your environment variables before other plugins see them:
 
 ```yaml
 plugins:
   - serverless-export-env
 ```
 
-That's it! You can now call `sls export-env` in your terminal to generate the `.env` file based on your Serverless configuration. Or, you can just run `sls invoke local -f FUNCTION` or `sls offline start` to run your code locally as usual.
+That's it! You can now call `sls export-env` in your terminal to generate the `.env` file. Or, you can run `sls invoke local -f FUNCTION` or `sls offline start` to run your code locally as usual.
 
 ### Examples
 
 ```sh
-serverless export-env
+sls export-env
 ```
 
-This will export all global environment variables into a `.env` file in your project root folder.
+This will export all project-wide environment variables into a `.env` file in your project root folder.
 
 ```sh
-serverless export-env --function MyFunction --filename .env-MyFunction
+sls export-env --function MyFunction --filename .env-MyFunction
 ```
 
-This will export all environment variables of the `MyFunction` Lambda function into a `.env-MyFunction` file in your project root folder.
+This will export environment variables of the `MyFunction` Lambda function into a `.env-MyFunction` file in your project root folder.
 
 ## Referencing CloudFormation resources
 
-The Serverless Framework offers a very powerful feature: You are able to reference AWS resources anywhere from within your `serverless.yml` and it will automatically resolve them to their respective values during deployment. However, Serverless' built-in variable resolution is very limited and will not work properly when run locally. The _Serverless Export Env Plugin_ extends this functionality and automatically resolves most [intrinsic functions](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference.html) and initializes your local environment properly.
+As mentioned before, the Serverless Framework allows you to reference AWS resources anywhere from within your `serverless.yml` and it will automatically resolve them to their respective values during deployment. However, Serverless' built-in variable resolution is limited and will not always work when run locally. The _Serverless Export Env Plugin_ extends this functionality and automatically resolves commonly used [intrinsic functions](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference.html) and initializes your local environment properly.
 
 ### Supported instrinsic functions
 
@@ -118,7 +118,7 @@ custom:
 
 ### Custom Resource Resolution
 
-The plugin will try its best to resolve resource references like `Ref`, `Fn::GetAtt`, and `Fn::ImportValue` for you. However, in sometimes this might fail or you might want to use mocked values instead. In those cases, you can override those values using the `refMap`, `getAttMap` and `importValueMap` options.
+The plugin will try its best to resolve resource references like `Ref`, `Fn::GetAtt`, and `Fn::ImportValue` for you. However, sometimes this might fail, or you might want to use mocked values instead. In those cases, you can override those values using the `refMap`, `getAttMap`, and `importValueMap` options.
 
 - `refMap` takes a mapping of _resource name_ to _value_ pairs.
 - `getAttMap` takes a mapping of _resource name_ to _attribute/value_ pairs.
@@ -139,19 +139,19 @@ custom:
       OtherLambdaFunction: "arn:aws:lambda:us-east-2::function:other-lambda-function"
 ```
 
-## Command Line Options
+## Command-Line Options
 
-Running `sls export-env` will by default only export _global_ environment variables into your `.env` file (those defined under `provider.environment` in your `serverless.yml`). If you want to generate the `.env` file for a specific function, pass the function name as a command line argument as follows:
+Running `sls export-env` will, by default, only export _global_ environment variables into your `.env` file (those defined under `provider.environment` in your `serverless.yml`). If you want to generate the `.env` file for a specific function, pass the function name as a command-line argument as follows:
 
 ```sh
 sls export-env --function hello --filename .env-hello
 ```
 
-| Option    | Description                                                                                 |
-| --------- | ------------------------------------------------------------------------------------------- |
-| filename  | Target file name where to write the environment variables to, relative to the project root. |
-| overwrite | Overwrite the file even if it exists already.                                               |
-| function  | Name of a function for which to generate the .env file for.                                 |
+| Option    | Description                                                                                |
+| --------- | ------------------------------------------------------------------------------------------ |
+| filename  | Target filename where to write the environment variables to, relative to the project root. |
+| overwrite | Overwrite the file even if it exists already.                                              |
+| function  | Name of a function for which to generate the .env file.                                    |
 
 ## Provided lifecycle events
 
@@ -163,10 +163,10 @@ sls export-env --function hello --filename .env-hello
 ## Migrating from 1.x to 2.x
 
 - Running `sls invoke local` or `sls offline start` will no longer create or update your `.env` file. If you want to create an `.env` file, simply run `sls export-env` instead.
-- By default the plugin will no longer overwrite any existing `.env` file. To enable overwriting existing files either specific `--overwrite` in the command line or set the `custom.export-env.overwrite` configuration option.
-- Resource `Outputs` values (`resources.Resources.Outputs.*`) are no longer exported automatically. This has always been a workaround and causes more problems than it actually solved. The plugin will try its best to resolve `Fn::GetAtt` and other references for you now, so there should be little need for the old behavior anymore. Add the desired value new environment variable to `provider.environment` instead.
-- Running `sls export-env` will no longer merge the environment variables of all functions into a single `.env` file. Instead pass the name of the desired function as `--function` argument to the command line. If no function is specified, only global environment variables will be exported.
-- The configuration options `filename` and `pathFromRoot` have been merged to `filename` now. You can specify relative paths in `filename` now such as `./dist/.env`. Make sure the target folder exists!
+- By default, the plugin will no longer overwrite any existing `.env` file. To enable overwriting existing files, either specify `--overwrite` in the command-line or set the `custom.export-env.overwrite` configuration option.
+- Resource `Outputs` values (`resources.Resources.Outputs.*`) are no longer getting exported automatically. This has always been a workaround and causes more problems than it solved. The plugin will try its best to resolve `Fn::GetAtt` and other references for you now, so there should be little need for the old behavior anymore. Add the desired value new environment variable to `provider.environment` instead.
+- Running `sls export-env` will no longer merge the environment variables of all functions into a single `.env` file. Instead, pass the name of the desired function as `--function` argument to the command line. If no function name is specified, only project-wide environment variables will get exported.
+- The configuration options `filename` and `pathFromRoot` have been merged to `filename` now. You can specify relative paths in `filename` such as `./dist/.env` now. Make sure the target folder exists!
 
 ## Releases
 
@@ -179,7 +179,7 @@ sls export-env --function hello --filename .env-hello
 
 ### 1.4.4
 
-- Reverted changes in 1.4.1. Unfortunately we broke the semver contract by introducing a breaking feature in a patch update. This feature needs to be rethought and added back in a 1.5.x release as optional. Until then, I had to remove it again.
+- Reverted changes in 1.4.1. Unfortunately, we broke the semver contract by introducing a breaking feature in a patch update. This feature needs to be rethought and added back in a 1.5.x release as optional. Until then, I had to remove it again.
 
 #### 1.4.3
 
@@ -204,13 +204,13 @@ sls export-env --function hello --filename .env-hello
 
 ### 1.3.0
 
-- Support different output file name and path. Thanks to [philiiiiiipp](https://github.com/philiiiiiipp).
+- Support different output filename and path. Thanks to [philiiiiiipp](https://github.com/philiiiiiipp).
 - Export `Outputs` as environment variables. Thanks to [lielran](https://github.com/lielran).
 - Updated to latest dependencies
 
 ### 1.2.0
 
-- Use operating system-specific end-of-line when creating `.env` file
+- Use operating-system-specific end-of-line when creating `.env` file
 
 ### 1.1.3
 
