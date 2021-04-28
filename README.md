@@ -152,6 +152,7 @@ sls export-env --function hello --filename .env-hello
 | filename  | Target filename where to write the environment variables to, relative to the project root. |
 | overwrite | Overwrite the file even if it exists already.                                              |
 | function  | Name of a function for which to generate the .env file.                                    |
+| all       | Merge environment variables of all functions into a single .env file.                      |
 
 ## Provided lifecycle events
 
@@ -165,12 +166,18 @@ sls export-env --function hello --filename .env-hello
 - Running `sls invoke local` or `sls offline start` will no longer create or update your `.env` file. If you want to create an `.env` file, simply run `sls export-env` instead.
 - By default, the plugin will no longer overwrite any existing `.env` file. To enable overwriting existing files, either specify `--overwrite` in the command-line or set the `custom.export-env.overwrite` configuration option.
 - Resource `Outputs` values (`resources.Resources.Outputs.*`) are no longer getting exported automatically. This has always been a workaround and causes more problems than it solved. The plugin will try its best to resolve `Fn::GetAtt` and other references for you now, so there should be little need for the old behavior anymore. Add the desired value new environment variable to `provider.environment` instead.
-- Running `sls export-env` will no longer merge the environment variables of all functions into a single `.env` file. Instead, pass the name of the desired function as `--function` argument to the command line. If no function name is specified, only project-wide environment variables will get exported.
+- Running `sls export-env` will no longer merge the environment variables of all functions into a single `.env` file. Instead, pass the name of the desired function as `--function` argument to the command line. If no function name is specified, only project-wide environment variables will get exported. To bring back the old behavior, pass `--all` in command line and it will generate a file including all environment variables of all functions. However, please be aware that the behavior is undefined if functions use conflicting values for the same environment variable name.
 - The configuration options `filename` and `pathFromRoot` have been merged to `filename` now. You can specify relative paths in `filename` such as `./dist/.env` now. Make sure the target folder exists!
 
 ## Releases
 
 ### 2.0.0
+
+### alpha.1
+
+- Added `--all` command line parameter to merge the environment variables of all functions into a single `.env` file. Please note that the behavior is _undefined_ if functions use conflicting values for the same environment variable name.
+
+### alpha.0
 
 - Complete rewrite of the variable resolver. We use the amazing [cfn-resolver-lib](https://github.com/robessog/cfn-resolver-lib) lib now. This allows us to support not only `Ref` and `Fn::ImportValue` as in previous releases, but we're able to resolve the most commonly used intrinsic functions automatically now.
 

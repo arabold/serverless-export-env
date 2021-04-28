@@ -109,7 +109,7 @@ function resolveCloudFormationEnvVars(serverless, envVars, stack, resources, exp
   return resolveResources(AWS, stack, resources, exports, envVars, maps).then((resolved) => {
     process.env.SLS_DEBUG &&
       _.map(resolved, (value, key) =>
-        serverless.cli.log(`Resolved environment variable ${key}: ${JSON.stringify(value)}`)
+        serverless.cli.log(`Resolved environment variable ${key}: ${JSON.stringify(value)}`, "export-env")
       );
     return BbPromise.resolve(resolved);
   });

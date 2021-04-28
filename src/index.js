@@ -30,6 +30,11 @@ class ExportEnv {
             required: false,
             type: "string",
           },
+          all: {
+            usage: 'Merge environment variables of all functions into a single .env file (e.g. "--all")',
+            required: false,
+            type: "boolean",
+          },
           filename: {
             usage: 'Name of output file (e.g. "--filename .env")',
             shortcut: "p",
@@ -159,7 +164,7 @@ class ExportEnv {
       }
 
       // If this is a local lambda invoke, replace the service environment with the resolved one
-      process.env.SLS_DEBUG && this.serverless.cli.log(`[export-env] Updating serverless environment variable(s)`);
+      process.env.SLS_DEBUG && this.serverless.cli.log(`Updating serverless environment variable(s)`, "export-env");
       this.serverless.service.provider.environment = this.globalEnvironmentVariables;
       if (_.has(this.serverless, "service.functions")) {
         _.forEach(
@@ -180,10 +185,12 @@ class ExportEnv {
 
       const envFilePath = path.resolve(this.serverless.config.servicePath, this.filename);
       if (!fs.existsSync(envFilePath) || this.overwrite) {
-        process.env.SLS_DEBUG && this.serverless.cli.log(`[export-env] Writing ${this.filename} file`);
+        process.env.SLS_DEBUG && this.serverless.cli.log(`Writing ${this.filename} file`, "export-env");
 
         const envVars = _.clone(this.globalEnvironmentVariables);
-        if (this.options.function) {
+        if (this.options.all) {
+          _.forEach(this.functionEnvironmentVariables, (vars) => _.assign(envVars, vars));
+        } else if (this.options.function) {
           _.assign(envVars, this.functionEnvironmentVariables[this.options.function]);
         }
         const envDocument = transformEnvVarsToString(envVars);
@@ -191,7 +198,7 @@ class ExportEnv {
         fs.writeFileSync(envFilePath, envDocument);
       } else {
         process.env.SLS_DEBUG &&
-          this.serverless.cli.log(`[export-env] ${this.filename} already exists. Leaving it untouched.`);
+          this.serverless.cli.log(`${this.filename} already exists. Leaving it untouched.`, "export-env");
       }
     });
   }
