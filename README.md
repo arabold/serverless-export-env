@@ -107,14 +107,14 @@ custom:
 
 ### Configuration Options
 
-| Option         | Default | Description                                                                                          |
-| -------------- | ------- | ---------------------------------------------------------------------------------------------------- |
-| filename       | `.env`  | Target file name where to write the environment variables to, relative to the project root.          |
-| enableOffline  | `true`  | Evaluate the environment variables when running `sls invoke local` or `sls offline start`.           |
-| overwrite      | `false` | Overwrite the file even if it exists already.                                                        |
-| refMap         | `{}`    | A mapping of [resource resolutions](#Custom-Resource-Resoluition) for the `Ref` function             |
-| getAttMap      | `{}`    | A mapping of [resource resolutions](#Custom-Resource-Resoluition) for the `Fn::GetAtt` function      |
-| importValueMap | `{}`    | A mapping of [resource resolutions](#Custom-Resource-Resoluition) for the `Fn::ImportValue` function |
+| Option         | Default | Description                                                                                       |
+| -------------- | ------- | ------------------------------------------------------------------------------------------------- |
+| filename       | `.env`  | Target file name where to write the environment variables to, relative to the project root.       |
+| enableOffline  | `true`  | Evaluate the environment variables when running `sls invoke local` or `sls offline start`.        |
+| overwrite      | `false` | Overwrite the file even if it exists already.                                                     |
+| refMap         | `{}`    | Mapping of [resource resolutions](#Custom-Resource-Resolution) for the `Ref` function             |
+| getAttMap      | `{}`    | Mapping of [resource resolutions](#Custom-Resource-Resolution) for the `Fn::GetAtt` function      |
+| importValueMap | `{}`    | Mapping of [resource resolutions](#Custom-Resource-Resolution) for the `Fn::ImportValue` function |
 
 ### Custom Resource Resolution
 
@@ -128,16 +128,18 @@ The plugin will try its best to resolve resource references like `Ref`, `Fn::Get
 custom:
   export-env:
     refMap:
-      # Resolve `!Ref MyDbTable` as `mock-myTable`
-      MyDbTable: "mock-myTable"
+      # Resolve `!Ref MyDynamoDbTable` as `mock-myTable`
+      MyDynamoDbTable: "mock-myTable"
     getAttMap:
-      # Resolve `!GetAtt ElasticSearchInstance.DomainEndpoint` as `localhost:9200`
-      ElasticSearchInstance:
+      # Resolve `!GetAtt MyElasticSearchInstance.DomainEndpoint` as `localhost:9200`
+      MyElasticSearchInstance:
         DomainEndpoint: "localhost:9200"
     importValueMap:
-      # Resolve `!ImportValue OtherLambdaFunction` as `arn:aws:lambda:us-east-2::function:other-lambda-function`
-      OtherLambdaFunction: "arn:aws:lambda:us-east-2::function:other-lambda-function"
+      # Resolve `!ImportValue MyLambdaFunction` as `arn:aws:lambda:us-east-2::function:my-lambda-function`
+      MyLambdaFunction: "arn:aws:lambda:us-east-2::function:my-lambda-function"
 ```
+
+> 👉 Generally, it is recommended to avoid the use of intrinsic functions in your environment variables. Often, the same can be achieved by simply predefining a resource name and then manually construct the desired variable values. To share resources between different Serverless services, check out the `${cf:stackName.outputKey}` [variable resolution](https://www.serverless.com/framework/docs/providers/aws/guide/variables/) mechanism.
 
 ## Command-Line Options
 
@@ -172,6 +174,8 @@ sls export-env --function hello --filename .env-hello
 ## Releases
 
 ### 2.0.0
+
+- Removed optimistic variable resolution for `Fn::GetAtt` as it was not working properly and caused more issues than it solved. If you rely on `Fn::GetAtt` in your environment variables, define a custom resolution using the `getAttMap` [configuration option](#Configuration-Options).
 
 ### alpha.1
 

@@ -5,36 +5,43 @@ const BbPromise = require("bluebird"),
   NodeEvaluator = require("cfn-resolver-lib");
 
 function resolveGetAtt(refs, resource) {
-  const Partition = refs["AWS::Partition"];
-  const Region = refs["AWS::Region"];
-  const AccountId = refs["AWS::AccountId"];
-  switch (resource.ResourceType) {
-    case "AWS::Lambda::Function":
-      return {
-        Arn: `arn:${Partition}:lambda:${Region}:${AccountId}:function:${resource.PhysicalResourceId}`,
-        FunctionName: resource.PhysicalResourceId,
-      };
-    case "AWS::SNS::Topic":
-      return { TopicName: _.last(_.split(resource.PhysicalResourceId, ":")) };
-    case "AWS::SQS::Queue":
-      return { QueueName: _.last(_.split(resource.PhysicalResourceId, ":")) };
-    case "AWS::CloudWatch::Alarm":
-      return { AlarmName: _.last(_.split(resource.PhysicalResourceId, ":")) };
-    case "AWS::EC2::Subnet":
-      return { SubnetId: _.last(_.split(resource.PhysicalResourceId, ":")) };
-    case "AWS::EC2::VPC":
-      return { VpcId: _.last(_.split(resource.PhysicalResourceId, ":")) };
-    case "AWS::S3::Bucket":
-      return { BucketName: _.last(_.split(resource.PhysicalResourceId, ":")) };
-    case "AWS::EC2::SecurityGroup":
-      return { SecurityGroupId: _.last(_.split(resource.PhysicalResourceId, ":")) };
-    case "AWS::DynamoDB::Table":
-      return { TableName: _.last(_.split(resource.PhysicalResourceId, ":")) };
-    case "AWS::IAM::Role":
-      return { Arn: `arn:${Partition}:iam::${AccountId}:role/${resource.PhysicalResourceId}` };
-    case "AWS::ApiGateway::RestApi":
-      return { RootResourceId: resource.PhysicalResourceId };
-  }
+  // TODO: While this code was created in good intention (isn't it all?), it doesn't work in the current form.
+  // There's no AWS API that can help resolve !GetAtt automatically and some attributes are impossible to
+  // determine without retrieving additional details of the resource, e.g. using an additional API call.
+  // So, for now, we completely disable this variable resolution mechanism and rely of hardcoding the `getAttMap`
+  // in the config instead.
+  // Please note that the code below doesn't work properly.
+
+  // const Partition = refs["AWS::Partition"];
+  // const Region = refs["AWS::Region"];
+  // const AccountId = refs["AWS::AccountId"];
+  // switch (resource.ResourceType) {
+  //   case "AWS::Lambda::Function":
+  //     return {
+  //       Arn: `arn:${Partition}:lambda:${Region}:${AccountId}:function:${resource.PhysicalResourceId}`,
+  //       FunctionName: resource.PhysicalResourceId,
+  //     };
+  //   case "AWS::SNS::Topic":
+  //     return { TopicName: _.last(_.split(resource.PhysicalResourceId, ":")) };
+  //   case "AWS::SQS::Queue":
+  //     return { QueueName: _.last(_.split(resource.PhysicalResourceId, ":")) };
+  //   case "AWS::CloudWatch::Alarm":
+  //     return { AlarmName: _.last(_.split(resource.PhysicalResourceId, ":")) };
+  //   case "AWS::EC2::Subnet":
+  //     return { SubnetId: _.last(_.split(resource.PhysicalResourceId, ":")) };
+  //   case "AWS::EC2::VPC":
+  //     return { VpcId: _.last(_.split(resource.PhysicalResourceId, ":")) };
+  //   case "AWS::S3::Bucket":
+  //     return { BucketName: _.last(_.split(resource.PhysicalResourceId, ":")) };
+  //   case "AWS::EC2::SecurityGroup":
+  //     return { SecurityGroupId: _.last(_.split(resource.PhysicalResourceId, ":")) };
+  //   case "AWS::DynamoDB::Table":
+  //     return { TableName: _.last(_.split(resource.PhysicalResourceId, ":")) };
+  //   case "AWS::IAM::Role":
+  //     return { Arn: `arn:${Partition}:iam::${AccountId}:role/${resource.PhysicalResourceId}` };
+  //   case "AWS::ApiGateway::RestApi":
+  //     return { RootResourceId: resource.PhysicalResourceId };
+  // }
 
   return resource;
 }

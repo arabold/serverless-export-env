@@ -10,10 +10,6 @@ const _ = require("lodash");
  */
 function collectFunctionEnvVariables(serverless) {
   const functions = _.get(serverless, "service.functions", {});
-  // const envVars = _.mapValues(
-  //   _.mapKeys(functions, (func) => func.name),
-  //   (func) => func.environment
-  // );
   const envVars = _.mapValues(functions, (func) => func.environment);
   return envVars;
 }
