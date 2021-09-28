@@ -20,10 +20,10 @@ Add the npm package to your project:
 
 ```sh
 # Via yarn
-$ yarn add arabold/serverless-export-env@2.0.0-alpha.0 --dev
+$ yarn add arabold/serverless-export-env --dev
 
 # Via npm
-$ npm install arabold/serverless-export-env@2.0.0-alpha.0 --save-dev
+$ npm install arabold/serverless-export-env --save-dev
 ```
 
 Add the plugin to your `serverless.yml`. It should be listed first to ensure it can resolve your environment variables before other plugins see them:
@@ -167,7 +167,7 @@ sls export-env --function hello --filename .env-hello
 
 - Running `sls invoke local` or `sls offline start` will no longer create or update your `.env` file. If you want to create an `.env` file, simply run `sls export-env` instead.
 - By default, the plugin will no longer overwrite any existing `.env` file. To enable overwriting existing files, either specify `--overwrite` in the command-line or set the `custom.export-env.overwrite` configuration option.
-- Resource `Outputs` values (`resources.Resources.Outputs.*`) are no longer getting exported automatically. This has always been a workaround and causes more problems than it solved. The plugin will try its best to resolve `Fn::GetAtt` and other references for you now, so there should be little need for the old behavior anymore. Add the desired value new environment variable to `provider.environment` instead.
+- Resource `Outputs` values (`resources.Resources.Outputs.*`) are no longer getting exported automatically. This has always been a workaround and causes more problems than it solved. The plugin will try its best to resolve `Fn::GetAtt` and other references for you now, so there should be little need for the old behavior anymore. Add the desired value as an environment variable to `provider.environment` instead.
 - Running `sls export-env` will no longer merge the environment variables of all functions into a single `.env` file. Instead, pass the name of the desired function as `--function` argument to the command line. If no function name is specified, only project-wide environment variables will get exported. To bring back the old behavior, pass `--all` in command line and it will generate a file including all environment variables of all functions. However, please be aware that the behavior is undefined if functions use conflicting values for the same environment variable name.
 - The configuration options `filename` and `pathFromRoot` have been merged to `filename` now. You can specify relative paths in `filename` such as `./dist/.env` now. Make sure the target folder exists!
 
