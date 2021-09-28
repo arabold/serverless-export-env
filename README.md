@@ -175,7 +175,7 @@ sls export-env --function hello --filename .env-hello
 
 ### 2.0.0
 
-- Removed optimistic variable resolution for `Fn::GetAtt` as it was not working properly and caused more issues than it solved. If you rely on `Fn::GetAtt` in your environment variables, define a custom resolution using the `getAttMap` [configuration option](#Configuration-Options).
+- Removed optimistic variable resolution for `Fn::GetAtt` as it was not working properly and caused hard to solve issues. If you rely on `Fn::GetAtt` in your environment variables, define a custom resolution using the `getAttMap` [configuration option](#Configuration-Options).
 
 ### alpha.1
 
