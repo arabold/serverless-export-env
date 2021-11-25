@@ -27,7 +27,7 @@
     "prettier": "^2.1.2"
   },
   "peerDependencies": {
-    "serverless": "1.x || 2.x"
+    "serverless": "1 || 2 || 3"
   },
   "prettier": {
     "printWidth": 120,
