@@ -173,6 +173,11 @@ sls export-env --function hello --filename .env-hello
 
 ## Releases
 
+### 2.1.0
+
+- Compatibility with Serverless v3.x
+- Updated dependencies minor versions
+
 ### 2.0.0
 
 - Removed optimistic variable resolution for `Fn::GetAtt` as it was not working properly and caused hard to solve issues. If you rely on `Fn::GetAtt` in your environment variables, define a custom resolution using the `getAttMap` [configuration option](#Configuration-Options).
