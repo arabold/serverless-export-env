@@ -173,10 +173,15 @@ sls export-env --function hello --filename .env-hello
 
 ## Releases
 
+### 2.2.0
+
+- Fixed error with latest `cfn-resolver-lib`. Thanks to [estahn](https://github.com/estahn) for the fix.
+- Updated dependencies to latest versions.
+
 ### 2.1.0
 
 - Compatibility with Serverless v3.x
-- Updated dependencies minor versions
+- Updated dependencies' minor versions
 
 ### 2.0.0
 
