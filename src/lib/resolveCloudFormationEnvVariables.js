@@ -48,7 +48,7 @@ function resolveGetAtt(refs, resource) {
 
 function resolveResources(AWS, stack, resources, exports, toBeResolved, maps) {
   return BbPromise.all([AWS.getRegion(), AWS.getAccountId()]).spread((region, accountId) => {
-    const node = _.assign({}, { toBeResolved });
+    const node = _.assign({}, { toBeResolved, Parameters: [] });
     const refResolvers = _.merge(
       {
         "AWS::Partition": "aws", // FIXME How to determine correct value?
