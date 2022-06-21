@@ -1,9 +1,11 @@
 # ⚡️ Serverless Export Env Plugin
 
-[![serverless](https://public.serverless.com/badges/v3.svg)](http://www.serverless.com)
+[![serverless](https://img.shields.io/npm/dependency-version/serverless-export-env/peer/serverless.svg?style=flat-square)](https://www.serverless.com)
+[![nodejs](https://img.shields.io/node/v/serverless-export-env.svg?style=flat-square)](https://nodejs.org/)
 [![npm](https://img.shields.io/npm/v/serverless-export-env.svg)](https://www.npmjs.com/package/serverless-export-env)
 [![license](https://img.shields.io/github/license/arabold/serverless-export-env.svg)](https://github.com/arabold/serverless-export-env/blob/master/LICENSE)
-[![dependencies](https://img.shields.io/david/arabold/serverless-export-env.svg)](https://www.npmjs.com/package/serverless-export-env)
+[![dependencies](https://img.shields.io/librariesio/github/arabold/serverless-export-env.svg)](https://www.npmjs.com/package/serverless-export-env)
+[![prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://prettier.io/)
 
 ## About
 
