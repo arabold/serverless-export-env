@@ -22,10 +22,10 @@ Add the npm package to your project:
 
 ```sh
 # Via yarn
-$ yarn add arabold/serverless-export-env --dev
+$ yarn add serverless-export-env --dev
 
 # Via npm
-$ npm install arabold/serverless-export-env --save-dev
+$ npm install serverless-export-env --save-dev
 ```
 
 Add the plugin to your `serverless.yml`. It should be listed first to ensure it can resolve your environment variables before other plugins see them:
@@ -55,7 +55,7 @@ This will export environment variables of the `MyFunction` Lambda function into 
 
 As mentioned before, the Serverless Framework allows you to reference AWS resources anywhere from within your `serverless.yml` and it will automatically resolve them to their respective values during deployment. However, Serverless' built-in variable resolution is limited and will not always work when run locally. The _Serverless Export Env Plugin_ extends this functionality and automatically resolves commonly used [intrinsic functions](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference.html) and initializes your local environment properly.
 
-### Supported instrinsic functions
+### Supported intrinsic functions
 
 - Condition Functions
   - `Fn::And`
